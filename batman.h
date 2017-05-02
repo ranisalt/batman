@@ -47,10 +47,7 @@ private:
     template<class PowerUnit = watts>
     PowerUnit read_mw_from_int(const std::string& filename) const
     {
-        std::stringstream ss;
-        ss << sys_path << filename;
-
-        std::ifstream file{ss.str()};
+        std::ifstream file{sys_path + filename};
         int mw;
         file >> mw;
         return power_unit_cast<PowerUnit>(milliwatts{mw});
