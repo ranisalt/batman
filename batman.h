@@ -1,6 +1,7 @@
 #ifndef BATMAN_LIBRARY_H
 #define BATMAN_LIBRARY_H
 
+#include <experimental/filesystem>
 #include <fstream>
 #include <limits>
 #include <ratio>
@@ -11,49 +12,59 @@
 
 namespace batman {
 
+namespace filesystem = std::experimental::filesystem;
+
 class power_supply
 {
+
 public:
-    static power_supply from(std::string identifier)
+    static power_supply from(const std::string& identifier)
     {
-        auto sys_path = std::stringstream{};
-        sys_path << "/sys/class/power_supply/" << identifier << "/";
-        return {sys_path.str()};
+        auto sys_path = filesystem::path{"/sys/class/power_supply"};
+        sys_path.append(identifier);
+        return {sys_path};
     }
 
     template<class PowerUnit = watts>
     PowerUnit energy_full() const
     {
-        return read_mw_from_int<PowerUnit>("energy_full");
+        return read_milliwatts(build_path("energy_full"));
     }
 
     template<class PowerUnit = watts>
     PowerUnit energy_full_design() const
     {
-        return read_mw_from_int<PowerUnit>("energy_full_design");
+        return read_milliwatts(build_path("energy_full_design"));
     }
 
     template<class PowerUnit = watts>
     PowerUnit energy_now() const
     {
-        return read_mw_from_int<PowerUnit>("energy_now");
+        return read_milliwatts(build_path("energy_now"));
     }
 
 private:
-    power_supply(std::string sys_path) :
+    power_supply(filesystem::path sys_path) :
             sys_path{std::move(sys_path)}
     {}
 
-    template<class PowerUnit = watts>
-    PowerUnit read_mw_from_int(const std::string& filename) const
+    filesystem::path build_path(const std::string& filename) const
     {
-        std::ifstream file{sys_path + filename};
+        auto path = filesystem::path{sys_path};
+        path.append(filename);
+        return path;
+    }
+
+    template<class PowerUnit = watts>
+    PowerUnit read_milliwatts(const filesystem::path& path) const
+    {
+        std::ifstream file{path};
         int mw;
         file >> mw;
         return power_unit_cast<PowerUnit>(milliwatts{mw});
     }
 
-    std::string sys_path;
+    filesystem::path sys_path;
 };
 
 } /* namespace batman */

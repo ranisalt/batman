@@ -18,7 +18,7 @@ public:
 
     constexpr power_unit() = default;
 
-    power_unit(const power_unit&) = default;
+    constexpr power_unit(const power_unit&) = default;
 
     template<class Rep2>
     constexpr explicit power_unit(const Rep2& r) :
