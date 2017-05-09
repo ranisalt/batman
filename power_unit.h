@@ -114,6 +114,11 @@ using milliwatts = power_unit<std::int64_t, std::milli>;
 using watts = power_unit<std::int64_t>;
 using kilowatts = power_unit<std::int64_t, std::ratio<1000>>;
 
+constexpr watts operator ""_w(unsigned long long value)
+{
+    return watts{static_cast<watts::rep>(value)};
+}
+
 } /* namespace batman */
 
 namespace std {
