@@ -7,23 +7,94 @@
 
 namespace batman::udev {
 
-using context = std::unique_ptr<::udev, decltype(&udev_unref)>;
-context make_context()
+class context
 {
-    return {udev_new(), udev_unref};
-}
+public:
+    context(): ctx{udev_new(), udev_unref} {}
 
-using enumerate = std::unique_ptr<::udev_enumerate, decltype(&udev_enumerate_unref)>;
-enumerate make_enumerate(const context& udev)
-{
-    return {udev_enumerate_new(udev.get()), udev_enumerate_unref};
-}
+    ::udev* get() const noexcept { return ctx.get(); }
 
-using device = std::unique_ptr<udev_device, decltype(&udev_device_unref)>;
-device make_device(const context& udev, const char* path)
+    explicit operator bool() const noexcept { return bool(ctx); }
+
+private:
+    std::unique_ptr<::udev, decltype(&udev_unref)> ctx;
+};
+
+class device {
+public:
+    device(const context& ctx, const char* path):
+        dev{udev_device_new_from_syspath(ctx.get(), path), udev_device_unref}
+    {}
+
+    /* std::string get_sysattr_value(const char* sysattr) const { */
+    /*     return udev_device_get_sysattr_value(dev.get(), sysattr); */
+    /* } */
+
+    std::string get_sysattr_value(const std::string& sysattr) const {
+        return udev_device_get_sysattr_value(dev.get(), sysattr.c_str());
+    }
+
+    bool operator!=(const device& rhs) const noexcept {
+        return dev != rhs.dev;
+    }
+
+private:
+    std::unique_ptr<udev_device, decltype(&udev_device_unref)> dev;
+};
+
+class enumerate
 {
-    return {udev_device_new_from_syspath(udev.get(), path), udev_device_unref};
-}
+public:
+    enumerate(const context& ctx):
+        ctx{ctx}, enm{udev_enumerate_new(ctx.get()), udev_enumerate_unref} {}
+
+    bool add_match_subsystem(const char* subsystem) {
+        return udev_enumerate_add_match_subsystem(enm.get(), subsystem) > 0;
+    }
+
+    bool scan_devices() {
+        return udev_enumerate_scan_devices(enm.get()) > 0;
+    }
+
+    class iterator {
+    public:
+        iterator(const context& ctx, udev_list_entry* entry):
+            ctx{ctx}, entry{entry}
+        {}
+
+        using reference = std::reference_wrapper<device>;
+        using value_type = device;
+
+        bool operator!=(const iterator& rhs) const noexcept {
+            return entry != rhs.entry;
+        }
+
+        iterator& operator++() noexcept {
+            entry = udev_list_entry_get_next(entry);
+            return *this;
+        }
+
+        device operator*() {
+            return {ctx, udev_list_entry_get_name(entry)};
+        }
+
+    private:
+        const context& ctx;
+        udev_list_entry* entry;
+    };
+
+    iterator begin() const {
+        return {ctx, udev_enumerate_get_list_entry(enm.get())};
+    }
+
+    iterator end() const {
+        return {ctx, nullptr};
+    }
+
+private:
+    const context& ctx;
+    std::unique_ptr<::udev_enumerate, decltype(&udev_enumerate_unref)> enm;
+};
 
 } /* namespace batman::udev */
 
