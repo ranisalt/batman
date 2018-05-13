@@ -24,9 +24,7 @@ public:
     constexpr power_unit(const power_unit&) = default;
 
     template<class Rep2>
-    constexpr explicit power_unit(const Rep2& r) :
-            count_{r}
-    {}
+    constexpr explicit power_unit(const Rep2& r): count_{r} {}
 
     template<class Rep2, class Period2>
     constexpr explicit power_unit(const power_unit<Rep2, Period2>& other) :
@@ -35,25 +33,10 @@ public:
 
     power_unit& operator=(const power_unit&) = default;
 
-    constexpr Rep count() const
-    {
-        return count_;
-    }
-
-    static constexpr power_unit zero()
-    {
-        return {0};
-    }
-
-    static constexpr power_unit min()
-    {
-        return {std::numeric_limits<Rep>::min()};
-    }
-
-    static constexpr power_unit max()
-    {
-        return {std::numeric_limits<Rep>::max()};
-    }
+    constexpr Rep count() const { return count_; }
+    static constexpr power_unit zero() { return {0}; }
+    static constexpr power_unit min() { return {std::numeric_limits<Rep>::min()}; }
+    static constexpr power_unit max() { return {std::numeric_limits<Rep>::max()}; }
 
 private:
     Rep count_ = {};
