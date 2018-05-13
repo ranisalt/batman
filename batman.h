@@ -4,7 +4,7 @@
 #include "power_unit.h"
 #include "udev.h"
 
-#include <sstream>
+#include <algorithm>
 #include <string>
 
 namespace batman {
@@ -24,14 +24,16 @@ public:
         enumerate.add_match_subsystem("power_supply");
         enumerate.scan_devices();
 
-        for (auto device: enumerate) {
+        auto it = std::find_if(std::begin(enumerate), std::end(enumerate), [](auto device) {
             std::string type = device.get_sysattr_value("type");
-            if (type == "Battery") {
-                return std::move(device);
-            }
+            return type == "Battery";
+        });
+
+        if (it == std::end(enumerate)) {
+            throw std::runtime_error("No power supply available.");
         }
 
-        throw std::runtime_error("No power supply available.");
+        return *it;
     }
 
     template<class PowerUnit = watts>

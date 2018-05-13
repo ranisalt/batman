@@ -62,8 +62,15 @@ public:
             ctx{ctx}, entry{entry}
         {}
 
-        using reference = std::reference_wrapper<device>;
+        using difference_type = int;
+        using iterator_category = std::input_iterator_tag;
+        using pointer = device*;
+        using reference = device&;
         using value_type = device;
+
+        bool operator==(const iterator& rhs) const noexcept {
+            return entry == rhs.entry;
+        }
 
         bool operator!=(const iterator& rhs) const noexcept {
             return entry != rhs.entry;
