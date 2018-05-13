@@ -5,7 +5,8 @@
 
 int main(int argc, char** argv)
 {
-    auto bat = batman::power_supply::from("BAT0");
+    auto bat = batman::power_supply::enumerate();
+    /*auto bat = batman::power_supply::from("BAT0");*/
 
     std::cout.imbue(std::locale{""});
 

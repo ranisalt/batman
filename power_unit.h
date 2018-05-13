@@ -44,7 +44,7 @@ public:
 
     static constexpr power_unit min()
     {
-        return {std::numeric_limits<Rep>::lowest()};
+        return {std::numeric_limits<Rep>::min()};
     }
 
     static constexpr power_unit max()
