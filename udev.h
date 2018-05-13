@@ -12,7 +12,7 @@ class context
 public:
     context(): ctx{udev_new(), udev_unref} {}
 
-    ::udev* get() const noexcept { return ctx.get(); }
+    auto get() const noexcept { return ctx.get(); }
 
     explicit operator bool() const noexcept { return bool(ctx); }
 
