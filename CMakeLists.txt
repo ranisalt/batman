@@ -7,6 +7,6 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(Udev REQUIRED)
 include_directories(${Udev_INCLUDE_DIR})
 
-set(SOURCE_FILES batman.cpp)
+set(SOURCE_FILES main.cpp)
 add_executable(batman ${SOURCE_FILES})
-target_link_libraries(batman stdc++fs ${Udev_LIBRARY})
+target_link_libraries(batman ${Udev_LIBRARY})

@@ -1,6 +1,9 @@
 #ifndef BATMAN_POWER_UNIT_H
 #define BATMAN_POWER_UNIT_H
 
+#include <limits>
+#include <ratio>
+
 namespace batman {
 
 template<class Rep, class Period>
