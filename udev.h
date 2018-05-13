@@ -26,10 +26,6 @@ public:
         dev{udev_device_new_from_syspath(ctx.get(), path), udev_device_unref}
     {}
 
-    /* std::string get_sysattr_value(const char* sysattr) const { */
-    /*     return udev_device_get_sysattr_value(dev.get(), sysattr); */
-    /* } */
-
     std::string get_sysattr_value(const std::string& sysattr) const {
         return udev_device_get_sysattr_value(dev.get(), sysattr.c_str());
     }
